@@ -12,11 +12,11 @@ import {
   Alert,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { FaRegClock } from "react-icons/fa"; // 🕒 시계 아이콘
 
 const HomePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const {
     news,
     loading: newsLoading,
@@ -37,81 +37,120 @@ const HomePage = () => {
     <Container className="mt-4">
       <h1 className="text-center mb-4">📢 재난 & 뉴스 알리미</h1>
 
-      {/* 뉴스 섹션 */}
-      <h2>📰 최신 뉴스</h2>
+      {/* ✅ 최신 뉴스 섹션 */}
+      <h2 className="mb-3">📰 최신 뉴스</h2>
       {newsLoading ? (
-        <Spinner animation="border" />
+        <Spinner animation="border" className="d-block mx-auto" />
       ) : newsError ? (
-        <Alert variant="danger">뉴스 데이터를 불러오는데 실패했습니다.</Alert>
+        <Alert variant="danger" className="text-center">
+          ❌ 뉴스 데이터를 불러오는데 실패했습니다.
+        </Alert>
       ) : Array.isArray(news) && news.length > 0 ? (
         <Row>
-          {news.slice(0, 3).map((article, index) => (
-            <Col md={4} key={index} className="mb-4">
-              <Card>
-                <Card.Body>
-                  <Card.Title>{article.ynaTtl || "제목 없음"}</Card.Title>
-                  <Card.Text>
-                    {article.ynaCn
-                      ? article.ynaCn.substring(0, 100) + "..."
-                      : "내용 없음"}
-                  </Card.Text>
-                  <Button
-                    variant="link"
-                    href={article.newsLink}
-                    target="_blank"
-                  >
-                    기사 보기
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
+          {news.slice(0, 3).map((article, index) => {
+            const formattedDate = article.crtDt
+              ? new Date(article.crtDt).toLocaleString("ko-KR", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "날짜 없음";
+
+            return (
+              <Col md={4} key={index} className="mb-4">
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      {article.ynaTtl || "제목 없음"}
+                    </Card.Title>
+                    <Card.Text className="text-muted">
+                      {article.ynaCn
+                        ? article.ynaCn.substring(0, 100) + "..."
+                        : "내용 없음"}
+                    </Card.Text>
+
+                    {/* ✅ 시간 & 기사 보기 버튼 같은 줄 */}
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="text-muted small">
+                        <FaRegClock className="me-1" /> {formattedDate}
+                      </span>
+                      <Button
+                        variant="outline-primary"
+                        href={article.newsLink}
+                        target="_blank"
+                        size="sm"
+                      >
+                        기사 보기 →
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       ) : (
-        <p>불러올 뉴스가 없습니다.</p>
+        <p className="text-center">📰 불러올 뉴스가 없습니다.</p>
       )}
       <Button
         variant="primary"
-        className="mt-2"
+        className="mt-3 d-block mx-auto"
         onClick={() => navigate("/news")}
       >
-        전체 뉴스 보기
+        전체 뉴스 보기 →
       </Button>
 
       <hr />
 
-      {/* 재난 문자 섹션 */}
-      <h2>⚠️ 재난 경보</h2>
+      {/* ✅ 재난 문자 섹션 */}
+      <h2 className="mb-3">⚠️ 재난 경보</h2>
       {disasterLoading ? (
-        <Spinner animation="border" />
+        <Spinner animation="border" className="d-block mx-auto" />
       ) : disasterError ? (
-        <Alert variant="danger">
-          재난 문자 데이터를 불러오는데 실패했습니다.
+        <Alert variant="danger" className="text-center">
+          ❌ 재난 문자 데이터를 불러오는데 실패했습니다.
         </Alert>
       ) : Array.isArray(messages) && messages.length > 0 ? (
         <Row>
-          {messages.slice(0, 3).map((msg, index) => (
-            <Col md={4} key={index} className="mb-4">
-              <Card bg="warning">
-                <Card.Body>
-                  <Card.Title>
-                    {msg.dstSeNm || "알 수 없는 재난 유형"}
-                  </Card.Title>
-                  <Card.Text>{msg.msgCn || "내용 없음"}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
+          {messages.slice(0, 3).map((msg, index) => {
+            const formattedDate = msg.crtDt
+              ? new Date(msg.crtDt).toLocaleString("ko-KR", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "날짜 없음";
+
+            return (
+              <Col md={4} key={index} className="mb-4">
+                <Card bg="warning" className="shadow-sm">
+                  <Card.Body>
+                    <Card.Title className="fw-bold">
+                      {msg.dstSeNm || "알 수 없는 재난 유형"}
+                    </Card.Title>
+                    <Card.Text>{msg.msgCn || "내용 없음"}</Card.Text>
+
+                    {/* ✅ 등록 시간 추가 */}
+                    <div className="text-muted small">
+                      <FaRegClock className="me-1" /> {formattedDate}
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       ) : (
-        <p>불러올 재난 경보가 없습니다.</p>
+        <p className="text-center">⚠️ 불러올 재난 경보가 없습니다.</p>
       )}
       <Button
         variant="danger"
-        className="mt-2"
+        className="mt-3 d-block mx-auto"
         onClick={() => navigate("/disaster")}
       >
-        재난 문자 보기
+        재난 문자 보기 →
       </Button>
     </Container>
   );
