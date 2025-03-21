@@ -1,18 +1,21 @@
+// src/slice/newsSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// 🔹 뉴스 데이터 불러오기 (검색어가 있으면 검색, 없으면 전체 데이터 요청)
+// 🔍 뉴스 데이터 불러오기 (검색 + 페이지네이션 지원)
 export const fetchNews = createAsyncThunk(
   "news/fetchNews",
-  async (query = "", { rejectWithValue }) => {
+  async ({ query = "", page = 1, size = 9 } = {}, { rejectWithValue }) => {
     try {
-      const response = query
-        ? await axios.get("http://localhost:8080/api/news", {
-            params: { ynaTtl: query },
-          }) // 검색 기능
-        : await axios.get("http://localhost:8080/api/news/all"); // 전체 데이터 요청
+      const endpoint = query
+        ? "http://localhost:8080/api/news"
+        : "http://localhost:8080/api/news/all";
 
-      return response.data.content || [];
+      const response = await axios.get(endpoint, {
+        params: { ynaTtl: query, page, size },
+      });
+
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data || "데이터를 불러오지 못했습니다."
@@ -24,7 +27,8 @@ export const fetchNews = createAsyncThunk(
 const newsSlice = createSlice({
   name: "news",
   initialState: {
-    news: [], // 뉴스 데이터 저장
+    news: [],
+    totalPages: 1,
     loading: false,
     error: null,
   },
@@ -37,7 +41,8 @@ const newsSlice = createSlice({
       })
       .addCase(fetchNews.fulfilled, (state, action) => {
         state.loading = false;
-        state.news = action.payload; // ✅ 검색 결과 또는 전체 데이터 업데이트
+        state.news = action.payload.content || [];
+        state.totalPages = action.payload.page?.totalPages || 1;
       })
       .addCase(fetchNews.rejected, (state, action) => {
         state.loading = false;

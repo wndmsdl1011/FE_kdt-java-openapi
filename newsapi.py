@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 # H2 데이터베이스 설정
 H2_JAR_PATH = r"C:\Program Files (x86)\H2\bin\h2-2.3.232.jar"
-H2_URL = "jdbc:h2:tcp://localhost/~/newsdata"
+H2_URL = "jdbc:h2:tcp://localhost/~/newsdata;"
 H2_USER = "sa"
 H2_PASSWORD = ""
 
@@ -114,25 +114,23 @@ def get_last_inserted_date(conn, table_name):
 # 네이버 뉴스 API 호출 및 첫 번째 링크 추출
 def fetch_naver_news_link(query):
     try:
-        # 쿼리 단순화: 첫 20자만 사용하고 특수 문자 제거
         encoded_query = requests.utils.quote(query, encoding='UTF-8')
         url = f"{NAVER_API_URL}?query={encoded_query}&display=10&start=1&sort=sim"
         headers = {
             "X-Naver-Client-Id": NAVER_CLIENT_ID,
             "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
         }
-        #logging.debug(f"Original Query: {query}, Encoded URL: {url}")
+        
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        data = response.json()
-        #logging.debug(f"Naver API response: {json.dumps(data, ensure_ascii=False)}")
+        
+        data = response.json()    
         items = data.get("items", [])
         time.sleep(0.2)  # 0.2초 대기
+        
         if not items:
-            #logging.warning(f"No news items found for query '{encoded_query}' (original: '{query}')")
             return "No link available"
         link = items[0].get("link", items[0].get("originallink", "No link available"))
-        #logging.debug(f"Returning link: {link}")
         return link
     except Exception as e:
         logging.error(f"Failed to fetch news link from Naver API for query '{query}': {e}")
@@ -313,7 +311,7 @@ def fetch_and_store_news():
 # 스케줄링 작업
 def run_scheduler():
     schedule.every(5).minutes.do(fetch_and_store_news)
-    logging.info("Scheduler started. Running every 5 minutes.")
+    logging.info("스케줄러가 시작됩니다. 5분마다 뉴스 및 재난 문자를 가져옵니다.")
     while True:
         schedule.run_pending()
         time.sleep(60)
