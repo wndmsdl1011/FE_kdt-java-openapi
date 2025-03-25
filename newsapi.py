@@ -106,10 +106,10 @@ def get_last_inserted_date(conn, table_name):
         cursor.close()
         if result[0]:
             return datetime.strptime(result[0], "%Y-%m-%d %H:%M:%S" if table_name == 'news_articles' else "%Y/%m/%d %H:%M:%S.%f")
-        return datetime(2025, 3, 10)
+        return datetime(2025, 3, 20)
     except Exception as e:
         logging.error(f"Failed to get last inserted date from {table_name}: {e}")
-        return datetime(2025, 3, 10)
+        return datetime(2025, 3, 20)
 
 # 네이버 뉴스 API 호출 및 첫 번째 링크 추출
 def fetch_naver_news_link(query):
@@ -276,7 +276,7 @@ def fetch_and_store_news():
         last_message_date = get_last_inserted_date(conn, "disaster_messages")
         logging.info(f"Last inserted news date: {last_news_date}")
         logging.info(f"Last inserted message date: {last_message_date}")
-        current_date = datetime(2025, 3, 10)
+        current_date = datetime(2025, 3, 20)
         end_date = datetime.now()
         news_page_no = 1
         message_page_no = 1
