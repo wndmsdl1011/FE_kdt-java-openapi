@@ -66,7 +66,7 @@ const Footer = () => {
           {/* YouTube 링크 */}
           <li className="nav-item">
             <a
-              href="https://www.youtube.com/"
+              href="https://www.youtube.com/watch?v=YrnCgMPQHFM"
               aria-label="YouTube"
               target="_blank"
               rel="noopener noreferrer"
